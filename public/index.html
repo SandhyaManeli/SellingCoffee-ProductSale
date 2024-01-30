@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop Sales System</title>
+</head>
+<body>
+    <h1>Coffee Shop Sales System</h1>
+    <div>
+        <label for="coffeeType">Product</label></br></br>
+        <select id="coffeeType">
+            <option value="gold">Gold Coffee</option>
+            <option value="arabic">Arabic Coffee</option>
+        </select>
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" min="1" value="1">
+
+        <label for="unitCost">Unit Cost($)</label>
+        <input type="number" id="unitCost" min="0.01" step="0.01" value="10.00">
+
+        <button onclick="calculateSellingPrice()">Selling Price</button>
+    </div></br></br>
+    <table id="resultTable" border="1">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Cost</th>
+                <th>Selling Price</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+        function calculateSellingPrice() {
+            const coffeeType = document.getElementById('coffeeType').value;
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const unitCost = parseFloat(document.getElementById('unitCost').value);
+			
+            fetch(`http://localhost:8000/calculate-sell-price/${coffeeType}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    quantity: quantity,
+                    unit_cost: unitCost,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => displayResults(coffeeType, quantity, unitCost, data.selling_price))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function displayResults(coffeeType, quantity, unitCost, sellingPrice) {
+            const tbody = document.querySelector('#resultTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${coffeeType}</td>
+                <td>${quantity}</td>
+                <td>$${unitCost}</td>
+                <td>$${sellingPrice}</td>
+            `;
+            tbody.appendChild(newRow);
+        }
+    </script>
+</body>
+</html>
